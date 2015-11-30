@@ -10,12 +10,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.couchbase.lite.Database;
+import com.couchbase.lite.Document;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.squareup.otto.Subscribe;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import evinas.talk.couchbase.shoppinglist.R;
+import evinas.talk.couchbase.shoppinglist.ShoppingListApplication;
+import evinas.talk.couchbase.shoppinglist.couchbase.ItemConverter;
 import evinas.talk.couchbase.shoppinglist.eventbus.EventBus;
 import evinas.talk.couchbase.shoppinglist.eventbus.event.ShoppingItem;
 import evinas.talk.couchbase.shoppinglist.eventbus.event.ShowAddItem;
@@ -30,6 +34,8 @@ public class ShoppingActivity extends AppCompatActivity {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
 
+    private Database database;
+
     private ShoppingListFragment shoppingListFragment;
 
     private AddItemFragment addItemFragment;
@@ -38,6 +44,9 @@ public class ShoppingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shopping);
+
+        database = ((ShoppingListApplication)getApplication()).getDatabase();
+
         ButterKnife.bind(this);
 
         // Set Action Bar
@@ -72,6 +81,8 @@ public class ShoppingActivity extends AppCompatActivity {
     @Subscribe
     public void addItemToShoppingList(ShoppingItem shoppingItem){
         replaceFragment(R.id.layout_content, shoppingListFragment, false);
+        Document document = database.createDocument();
+        ItemConverter.fillDocument(document, shoppingItem);
     }
 
 

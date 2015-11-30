@@ -4,17 +4,17 @@ import android.graphics.Bitmap;
 
 public class ShoppingItem {
 
-    private String name;
+    private String title;
     private String description;
     private int number;
     private Bitmap image;
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {

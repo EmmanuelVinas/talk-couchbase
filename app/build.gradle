@@ -23,6 +23,7 @@ android {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
+        exclude 'META-INF/ASL2.0'
     }
 }
 
@@ -51,4 +52,7 @@ dependencies {
     compile 'com.squareup.okhttp:logging-interceptor:2.+'
     // picasso
     compile 'com.squareup.picasso:picasso:2.5.+'
+
+    // Couchbase
+    compile 'com.couchbase.lite:couchbase-lite-android:1.1.+'
 }

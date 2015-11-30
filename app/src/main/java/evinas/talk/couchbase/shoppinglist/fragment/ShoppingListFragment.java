@@ -10,17 +10,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import com.couchbase.lite.Emitter;
+import com.couchbase.lite.Mapper;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import evinas.talk.couchbase.shoppinglist.R;
+import evinas.talk.couchbase.shoppinglist.ShoppingListApplication;
+import evinas.talk.couchbase.shoppinglist.couchbase.ItemConverter;
+import evinas.talk.couchbase.shoppinglist.couchbase.LiveQueryRecyclerAdapter;
 import evinas.talk.couchbase.shoppinglist.eventbus.EventBus;
 import evinas.talk.couchbase.shoppinglist.eventbus.event.ShowAddItem;
 
 public class ShoppingListFragment extends Fragment{
+
+    private final static String SHOPPING_LIST_VIEW_NAME="shoppingList";
 
     @Bind(R.id.my_recycler_view)
     RecyclerView recyclerView;
@@ -59,6 +68,29 @@ public class ShoppingListFragment extends Fragment{
                         layoutManager.requestLayout();
                     }
                 });
+
+        // Couchbase
+        com.couchbase.lite.View shoppingView = getShoppingView();
+        LiveQueryRecyclerAdapter adapter = new LiveQueryRecyclerAdapter(getContext(), shoppingView.createQuery().toLiveQuery());
+        recyclerView.setAdapter(adapter);
+
+        return view;
+    }
+
+
+    private com.couchbase.lite.View getShoppingView() {
+        com.couchbase.lite.View view = ((ShoppingListApplication)getActivity().getApplication()).getDatabase().getView(SHOPPING_LIST_VIEW_NAME);
+        if (view.getMap() == null) {
+            Mapper mapper = new Mapper() {
+                public void map(Map<String, Object> document, Emitter emitter) {
+                    String type = (String) document.get(ItemConverter.PROPERTY_TYPE);
+                    if (ItemConverter.PROPERTY_TYPE_VALUE.equals(type)) {
+                        emitter.emit((String) document.get(ItemConverter.PROPERTY_ID), document);
+                    }
+                }
+            };
+            view.setMap(mapper, "1");
+        }
         return view;
     }
 

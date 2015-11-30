@@ -1,12 +1,9 @@
 package evinas.talk.couchbase.shoppinglist.fragment;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.text.TextUtilsCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,19 +33,13 @@ import evinas.talk.couchbase.shoppinglist.eventbus.EventBus;
 import evinas.talk.couchbase.shoppinglist.eventbus.event.ShoppingItem;
 import evinas.talk.couchbase.shoppinglist.ws.GoogleImageResponse;
 import evinas.talk.couchbase.shoppinglist.ws.GoogleImageService;
-import evinas.talk.couchbase.shoppinglist.ws.ResponseData;
 import evinas.talk.couchbase.shoppinglist.ws.Result;
-import retrofit.Call;
-import retrofit.Callback;
 import retrofit.JacksonConverterFactory;
-import retrofit.Response;
 import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
 import rx.Observable;
 import rx.Observer;
-import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
@@ -264,7 +255,7 @@ public class AddItemFragment extends Fragment {
         }else{
             // Add product
             ShoppingItem item = new ShoppingItem();
-            item.setName(name.getText().toString());
+            item.setTitle(name.getText().toString());
             item.setDescription(TextUtils.isEmpty(description.getText()) ? description.getText().toString():null );
             item.setImage(itemImage);
             item.setNumber(itemCount);
