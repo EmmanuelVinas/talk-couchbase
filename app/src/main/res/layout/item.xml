@@ -14,6 +14,7 @@
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:scaleType="fitStart"
+            android:background="@android:color/white"
             android:src="@drawable/abc_ab_share_pack_mtrl_alpha" />
 
 

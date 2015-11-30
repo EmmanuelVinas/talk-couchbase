@@ -62,7 +62,7 @@ public final class ItemConverter {
         InputStream stream = bitmapToStream(bitmap);
         if (stream != null){
             UnsavedRevision revision = doc.createRevision();
-            revision.setAttachment(ATTACHED_IMAGE, "image/jpg", stream);
+            revision.setAttachment(ATTACHED_IMAGE, "image/png", stream);
             try {
                 revision.save();
             } catch (CouchbaseLiteException e) {
@@ -74,7 +74,7 @@ public final class ItemConverter {
     public static InputStream bitmapToStream(Bitmap image){
         if (image != null) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            image.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            image.compress(Bitmap.CompressFormat.PNG, 100, out);
             return new ByteArrayInputStream(out.toByteArray());
         }
         return null;
