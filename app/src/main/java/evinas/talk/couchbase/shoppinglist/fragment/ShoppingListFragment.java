@@ -1,17 +1,21 @@
 package evinas.talk.couchbase.shoppinglist.fragment;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Emitter;
 import com.couchbase.lite.Mapper;
+import com.couchbase.lite.QueryEnumerator;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
@@ -33,6 +37,9 @@ public class ShoppingListFragment extends Fragment{
 
     @Bind(R.id.my_recycler_view)
     RecyclerView recyclerView;
+
+    @Bind(R.id.emptyView)
+    View emptyView;
 
     @Bind(R.id.fab_multiple)
     FloatingActionsMenu fabGroup;
@@ -71,7 +78,15 @@ public class ShoppingListFragment extends Fragment{
 
         // Couchbase
         com.couchbase.lite.View shoppingView = getShoppingView();
-        LiveQueryRecyclerAdapter adapter = new LiveQueryRecyclerAdapter(getContext(), shoppingView.createQuery().toLiveQuery());
+        final LiveQueryRecyclerAdapter adapter = new LiveQueryRecyclerAdapter(getContext(), shoppingView.createQuery().toLiveQuery());
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                emptyView.setVisibility(adapter.getItemCount() == 0 ? View.VISIBLE : View.INVISIBLE);
+            }
+        });
+        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.activity_space);
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spacingInPixels, true));
         recyclerView.setAdapter(adapter);
 
         return view;
@@ -94,6 +109,40 @@ public class ShoppingListFragment extends Fragment{
         return view;
     }
 
+    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
+
+        private int spacing;
+        private boolean includeEdge;
+
+        public GridSpacingItemDecoration(int spacing, boolean includeEdge) {
+            this.spacing = spacing;
+            this.includeEdge = includeEdge;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            int spanCount = ((GridLayoutManager)parent.getLayoutManager()).getSpanCount();
+            int position = parent.getChildAdapterPosition(view); // item position
+            int column = position % spanCount; // item column
+
+            if (includeEdge) {
+                outRect.left = spacing - column * spacing / spanCount; // spacing - column * ((1f / spanCount) * spacing)
+                outRect.right = (column + 1) * spacing / spanCount; // (column + 1) * ((1f / spanCount) * spacing)
+
+                if (position < spanCount) { // top edge
+                    outRect.top = spacing;
+                }
+                outRect.bottom = spacing; // item bottom
+            } else {
+                outRect.left = column * spacing / spanCount; // column * ((1f / spanCount) * spacing)
+                outRect.right = spacing - (column + 1) * spacing / spanCount; // spacing - (column + 1) * ((1f /    spanCount) * spacing)
+                if (position >= spanCount) {
+                    outRect.top = spacing; // item top
+                }
+            }
+        }
+    }
+
 
     // Shopping Actions
     @OnClick(R.id.fab_add_action)
@@ -104,7 +153,14 @@ public class ShoppingListFragment extends Fragment{
 
     @OnClick(R.id.fab_empty_action)
     public void clearShoppingList(){
-        Snackbar.make(recyclerView, "Cart cleared", Snackbar.LENGTH_LONG).show();
+        try {
+            QueryEnumerator enumerator = getShoppingView().createQuery().run();
+            while (enumerator.hasNext()){
+                enumerator.next().getDocument().delete();
+            };
+        } catch (CouchbaseLiteException e) {
+            Log.e(ShoppingListApplication.TAG, "Unable to remove documents");
+        }
     }
 
 }

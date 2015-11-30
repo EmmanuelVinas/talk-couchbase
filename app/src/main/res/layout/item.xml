@@ -2,57 +2,93 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin">
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:scaleType="fitStart"
-            android:background="@android:color/white"
-            android:src="@drawable/abc_ab_share_pack_mtrl_alpha" />
-
-
-        <TextView
-            android:id="@+id/title"
-            style="@style/TextAppearance.AppCompat.Title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/image"
-            android:text="the text" />
-
-        <android.support.percent.PercentFrameLayout
+        <LinearLayout
             android:id="@+id/layout_percent"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignRight="@+id/image"
-            android:layout_alignTop="@+id/image"
-            android:layout_gravity="top|right"
-            android:layout_marginBottom="@dimen/activity_vertical_margin">
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:orientation="vertical"
+            android:weightSum="1">
 
-            <TextView
-                android:id="@+id/count"
-                style="@style/TextAppearance.AppCompat.Title"
-                android:layout_width="wrap_content"
-                android:layout_margin="@dimen/activity_vertical_margin"
-                android:background="@drawable/card_number"
-                android:padding="@dimen/activity_horizontal_margin"
-                android:text="1"
-                app:layout_aspectRatio="100%" />
-        </android.support.percent.PercentFrameLayout>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="0.6"
+                android:background="@drawable/corder"
+                app:layout_aspectRatio="100%"
+                app:layout_widthPercent="20%">
+
+                <ImageView
+                    android:id="@+id/image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:background="@android:color/white"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/abc_ab_share_pack_mtrl_alpha" />
+
+                <android.support.percent.PercentFrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+
+                    <FrameLayout
+                        app:layout_widthPercent="30%"
+                        app:layout_heightPercent="30%"
+                        android:layout_gravity="right"
+                        android:paddingLeft="20dp"
+                        android:paddingBottom="20dp"
+                        android:background="@drawable/corder">
+
+                        <TextView
+                            android:id="@+id/count"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:padding="20dp"
+                            android:textColor="@android:color/holo_green_dark"
+                            style="@style/TextAppearance.AppCompat.Title"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="1" />
+                    </FrameLayout>
+
+                </android.support.percent.PercentFrameLayout>
+
+
+                <TextView
+                    android:id="@+id/title"
+                    style="@style/TextAppearance.AppCompat.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:padding="@dimen/activity_horizontal_margin"
+                    android:text="the text" />
+
+            </FrameLayout>
+
+
+        </LinearLayout>
+
 
         <TextView
             android:id="@+id/description"
             style="@style/TextAppearance.AppCompat.Body1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/image"
+            android:layout_below="@+id/title"
             android:padding="@dimen/activity_vertical_margin"
             android:text="the description" />
-    </RelativeLayout>
+
+    </LinearLayout>
+
+
 </android.support.v7.widget.CardView>

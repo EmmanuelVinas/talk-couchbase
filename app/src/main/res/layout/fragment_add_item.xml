@@ -53,16 +53,26 @@
                         android:src="@drawable/abc_ab_share_pack_mtrl_alpha"
                         app:layout_aspectRatio="100%" />
 
-
-                    <TextView
-                        android:id="@+id/textViewCount"
-                        style="@style/TextAppearance.AppCompat.Title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    <FrameLayout
+                        app:layout_widthPercent="30%"
+                        app:layout_aspectRatio="100%"
                         android:layout_gravity="right"
-                        android:background="@drawable/bg_count"
-                        android:padding="25dp"
-                        android:text="1" />
+                        android:paddingLeft="20dp"
+                        android:paddingBottom="20dp"
+                        android:background="@drawable/corder">
+
+                        <TextView
+                            android:id="@+id/textViewCount"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:padding="20dp"
+                            style="@style/TextAppearance.AppCompat.Title"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:textColor="@android:color/white"
+                            android:text="1" />
+                    </FrameLayout>
+
 
                 </android.support.percent.PercentFrameLayout>
 

@@ -7,6 +7,6 @@ import rx.Observable;
 
 public interface GoogleImageService {
 
-    @GET("search/images?v=1.0&imgsz=small&rsz=1&as_filetype=png")
+    @GET("search/images?v=1.0&imgsz=medium&rsz=1&as_filetype=png")
     Observable<GoogleImageResponse> searchImage(@Query("q") String subject);
 }
