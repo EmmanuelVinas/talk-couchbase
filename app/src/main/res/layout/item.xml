@@ -36,14 +36,10 @@
                     android:scaleType="centerCrop"
                     android:src="@drawable/abc_ab_share_pack_mtrl_alpha" />
 
-                <android.support.percent.PercentFrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
 
                     <FrameLayout
-                        app:layout_widthPercent="30%"
-                        app:layout_heightPercent="30%"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:layout_gravity="right"
                         android:paddingLeft="20dp"
                         android:paddingBottom="20dp"
@@ -51,17 +47,15 @@
 
                         <TextView
                             android:id="@+id/count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:gravity="center"
-                            android:padding="20dp"
-                            android:textColor="@android:color/holo_green_dark"
+                            android:textColor="@android:color/white"
                             style="@style/TextAppearance.AppCompat.Title"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
                             android:text="1" />
                     </FrameLayout>
 
-                </android.support.percent.PercentFrameLayout>
 
 
                 <TextView

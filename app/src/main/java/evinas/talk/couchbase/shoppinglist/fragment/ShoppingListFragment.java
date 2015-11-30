@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import com.couchbase.lite.CouchbaseLiteException;
+import com.couchbase.lite.Document;
 import com.couchbase.lite.Emitter;
 import com.couchbase.lite.Mapper;
 import com.couchbase.lite.QueryEnumerator;
@@ -72,6 +73,8 @@ public class ShoppingListFragment extends Fragment{
                         float cardViewWidth = 300;
                         int newSpanCount = (int) Math.floor(viewWidth / cardViewWidth);
                         layoutManager.setSpanCount(newSpanCount);
+                        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.activity_space);
+                        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spacingInPixels, true));
                         layoutManager.requestLayout();
                     }
                 });
@@ -85,8 +88,7 @@ public class ShoppingListFragment extends Fragment{
                 emptyView.setVisibility(adapter.getItemCount() == 0 ? View.VISIBLE : View.INVISIBLE);
             }
         });
-        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.activity_space);
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(spacingInPixels, true));
+
         recyclerView.setAdapter(adapter);
 
         return view;
@@ -155,9 +157,13 @@ public class ShoppingListFragment extends Fragment{
     public void clearShoppingList(){
         try {
             QueryEnumerator enumerator = getShoppingView().createQuery().run();
+            ((ShoppingListApplication)getActivity().getApplication()).getDatabase().beginTransaction();
             while (enumerator.hasNext()){
-                enumerator.next().getDocument().delete();
+                Document document = enumerator.next().getDocument();
+                document.purge();
+
             };
+            ((ShoppingListApplication)getActivity().getApplication()).getDatabase().endTransaction(true);
         } catch (CouchbaseLiteException e) {
             Log.e(ShoppingListApplication.TAG, "Unable to remove documents");
         }

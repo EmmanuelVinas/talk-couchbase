@@ -47,11 +47,13 @@ public final class ItemConverter {
     public static ShoppingItem fromDocument(Document document) {
         Map<String, Object> properties = document.getProperties();
         ShoppingItem item = new ShoppingItem();
-        item.setTitle((String) properties.get(PROPERTY_TITLE));
-        item.setDescription((String) properties.get(PROPERTY_DESCRIPTION));
-        Integer count = (Integer) properties.get(PROPERTY_COUNT);
-        if (count != null){
-            item.setNumber((Integer) properties.get(PROPERTY_COUNT));
+        if (properties != null){
+            item.setTitle((String) properties.get(PROPERTY_TITLE));
+            item.setDescription((String) properties.get(PROPERTY_DESCRIPTION));
+            Integer count = (Integer) properties.get(PROPERTY_COUNT);
+            if (count != null){
+                item.setNumber((Integer) properties.get(PROPERTY_COUNT));
+            }
         }
         item.setImage(loadImage(document));
         return item;

@@ -108,8 +108,8 @@ public class AddItemFragment extends Fragment {
         final int minLengthForRequest = 4;
         final GoogleImageService imageService = getImageService();
         RxTextView.textChanges(name).skip(minLengthForRequest)
-                .debounce(200, TimeUnit.MILLISECONDS)
-                .throttleLast(100, TimeUnit.MILLISECONDS)
+                .debounce(400, TimeUnit.MILLISECONDS)
+                .throttleLast(200, TimeUnit.MILLISECONDS)
                 .onBackpressureLatest()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
@@ -220,6 +220,8 @@ public class AddItemFragment extends Fragment {
 
         Picasso.with(AddItemFragment.this.getContext())
                 .load(url)
+                .resize(400,400)
+                .centerCrop()
                 .error(R.drawable.android_question)
                 .into(target);
     }
@@ -256,7 +258,7 @@ public class AddItemFragment extends Fragment {
             // Add product
             ShoppingItem item = new ShoppingItem();
             item.setTitle(name.getText().toString());
-            item.setDescription(TextUtils.isEmpty(description.getText()) ? description.getText().toString():null );
+            item.setDescription(!TextUtils.isEmpty(description.getText()) ? description.getText().toString() :null );
             item.setImage(itemImage);
             item.setNumber(itemCount);
             EventBus.post(item);
