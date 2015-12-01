@@ -1,12 +1,14 @@
 package evinas.talk.couchbase.shoppinglist.activity;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -38,7 +40,9 @@ public class ShoppingActivity extends AppCompatActivity {
 
     private ShoppingListFragment shoppingListFragment;
 
-    private AddItemFragment addItemFragment;
+    private Status currentState = null;
+
+    private enum Status{LIST, ADD};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +57,22 @@ public class ShoppingActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         if (savedInstanceState == null){
-            shoppingListFragment = new ShoppingListFragment();
-            replaceFragment(R.id.layout_content, shoppingListFragment, false);
+            showShoppingListFragment();
         }
    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        String state = savedInstanceState.getString("Status");
+        currentState = state != null ? Status.valueOf(state) : Status.ADD;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        outState.putString("Status", currentState.toString());
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
 
     @Override
     protected void onStart() {
@@ -70,23 +86,44 @@ public class ShoppingActivity extends AppCompatActivity {
         EventBus.unregister(this);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (currentState == Status.ADD){
+            showShoppingListFragment();
+        }else{
+            super.onBackPressed();
+        }
+
+    }
 
     @Subscribe
     public void showAddItemFragment(ShowAddItem addItem){
-        // Display add item fragment
-        addItemFragment = new AddItemFragment();
-        replaceFragment(R.id.layout_content, addItemFragment, false);
+        Log.i(ShoppingListApplication.TAG, "Event:showAddItemFragment");
+        if (currentState != Status.ADD){
+            // Display add item fragment
+            replaceFragment(R.id.layout_content, new AddItemFragment(), false);
+            currentState=Status.ADD;
+        }
+    }
+
+    public void showShoppingListFragment(){
+        if (currentState != Status.LIST){
+            shoppingListFragment = shoppingListFragment != null ? shoppingListFragment : new ShoppingListFragment();
+            replaceFragment(R.id.layout_content, shoppingListFragment, false);
+            currentState=Status.LIST;
+        }
     }
 
     @Subscribe
     public void addItemToShoppingList(ShoppingItem shoppingItem){
-        replaceFragment(R.id.layout_content, shoppingListFragment, false);
+        Log.i(ShoppingListApplication.TAG, "Event:addItemToShoppingList");
         Document document = database.createDocument();
         ItemConverter.fillDocument(document, shoppingItem);
+        showShoppingListFragment();
     }
 
 
-    protected void replaceFragment(int containerId, Fragment fragment, boolean addToBackStack) {
+    private void replaceFragment(int containerId, Fragment fragment, boolean addToBackStack) {
         if (fragment != null){
             String backStateName = fragment.getClass().getName();
             FragmentManager manager = getSupportFragmentManager();

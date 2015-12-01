@@ -29,6 +29,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import evinas.talk.couchbase.shoppinglist.R;
+import evinas.talk.couchbase.shoppinglist.ShoppingListApplication;
 import evinas.talk.couchbase.shoppinglist.eventbus.EventBus;
 import evinas.talk.couchbase.shoppinglist.eventbus.event.ShoppingItem;
 import evinas.talk.couchbase.shoppinglist.ws.GoogleImageResponse;
@@ -45,8 +46,6 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 public class AddItemFragment extends Fragment {
-
-    private final static String LOG_TAG = "DemoCouchBase";
 
     private final static String EXTRA_IMG="item_img";
     private final static String EXTRA_COUNT="count";
@@ -107,26 +106,22 @@ public class AddItemFragment extends Fragment {
         // clear on empty
         final int minLengthForRequest = 4;
         final GoogleImageService imageService = getImageService();
-        RxTextView.textChanges(name).skip(minLengthForRequest)
-                .debounce(400, TimeUnit.MILLISECONDS)
-                .throttleLast(200, TimeUnit.MILLISECONDS)
-                .onBackpressureLatest()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(AndroidSchedulers.mainThread())
+        RxTextView.textChanges(name)
                 .filter(new Func1<CharSequence, Boolean>() {
                     @Override
                     public Boolean call(CharSequence charSequence) {
-                        boolean res = charSequence.length()>=minLengthForRequest;
-                        if(!res){
-                            setItemImage(null);
-                        }
-                        return res;
+                        return charSequence.length()>=minLengthForRequest;
                     }
                 })
+                .debounce(200, TimeUnit.MILLISECONDS)
+                .throttleLast(200, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
                 .doOnNext(new Action1<CharSequence>() {
                     @Override
                     public void call(CharSequence o) {
-                        Log.i(LOG_TAG, "charsequence"+ o.length());
+                        Log.i(ShoppingListApplication.TAG, "charsequence"+ o.length());
+                        setItemImage(null);
                         progressBar.setVisibility(View.VISIBLE);
                         layoutContent.setVisibility(View.INVISIBLE);
                     }
@@ -135,7 +130,7 @@ public class AddItemFragment extends Fragment {
                 .switchMap(new Func1<CharSequence, Observable<GoogleImageResponse>>() {
                     @Override
                     public Observable<GoogleImageResponse> call(CharSequence charSequence) {
-                        Log.i(LOG_TAG, "function1");
+                        Log.i(ShoppingListApplication.TAG, "function1");
                         return imageService.searchImage(charSequence.toString());
                     }
                 })
@@ -166,7 +161,7 @@ public class AddItemFragment extends Fragment {
                         name.setText(null);
                         progressBar.setVisibility(View.INVISIBLE);
                         layoutContent.setVisibility(View.VISIBLE);
-                        Log.e(LOG_TAG, "error" + e);
+                        Log.e(ShoppingListApplication.TAG, "error" + e);
                     }
 
                     @Override
@@ -202,11 +197,13 @@ public class AddItemFragment extends Fragment {
         Target target = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                Log.i(ShoppingListApplication.TAG, "Picasso image loaded");
                 setItemImage(bitmap);
             }
 
             @Override
             public void onBitmapFailed(Drawable errorDrawable) {
+                Log.i(ShoppingListApplication.TAG, "Picasso image failed");
                 itemImage = null;
                 imgResult.setImageDrawable(errorDrawable);
             }
@@ -222,6 +219,7 @@ public class AddItemFragment extends Fragment {
                 .load(url)
                 .resize(400,400)
                 .centerCrop()
+                .placeholder(R.drawable.abc_ab_share_pack_mtrl_alpha)
                 .error(R.drawable.android_question)
                 .into(target);
     }
@@ -252,6 +250,7 @@ public class AddItemFragment extends Fragment {
 
     @OnClick(R.id.fab)
     public void onAddItem(){
+        Log.i(ShoppingListApplication.TAG, "Event:onAddItem");
         if (TextUtils.isEmpty(name.getText())){
             Toast.makeText(getContext(), "Product name can not be empty", Toast.LENGTH_LONG).show();
         }else{

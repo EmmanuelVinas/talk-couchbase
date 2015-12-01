@@ -1,5 +1,6 @@
 package evinas.talk.couchbase.shoppinglist.fragment;
 
+import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -70,10 +71,11 @@ public class ShoppingListFragment extends Fragment{
                     public void onGlobalLayout() {
                         recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                         int viewWidth = recyclerView.getMeasuredWidth();
-                        float cardViewWidth = 300;
-                        int newSpanCount = (int) Math.floor(viewWidth / cardViewWidth);
+                        int newSpanCount =
+                                (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) ?
+                                        4 : 3;
                         layoutManager.setSpanCount(newSpanCount);
-                        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.activity_space);
+                        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.spacing_medium);
                         recyclerView.addItemDecoration(new GridSpacingItemDecoration(spacingInPixels, true));
                         layoutManager.requestLayout();
                     }
@@ -149,19 +151,21 @@ public class ShoppingListFragment extends Fragment{
     // Shopping Actions
     @OnClick(R.id.fab_add_action)
     public void addItem(){
+        Log.i(ShoppingListApplication.TAG, "Event:addItem");
         fabGroup.collapseImmediately();
         EventBus.post(new ShowAddItem());
     }
 
     @OnClick(R.id.fab_empty_action)
     public void clearShoppingList(){
+        Log.i(ShoppingListApplication.TAG, "Event:clearShoppingList");
         try {
             QueryEnumerator enumerator = getShoppingView().createQuery().run();
             ((ShoppingListApplication)getActivity().getApplication()).getDatabase().beginTransaction();
             while (enumerator.hasNext()){
                 Document document = enumerator.next().getDocument();
+                document.delete();
                 document.purge();
-
             };
             ((ShoppingListApplication)getActivity().getApplication()).getDatabase().endTransaction(true);
         } catch (CouchbaseLiteException e) {

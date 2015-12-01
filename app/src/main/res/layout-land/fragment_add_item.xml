@@ -52,20 +52,26 @@
                     android:scaleType="fitStart"
                     android:src="@drawable/abc_ab_share_pack_mtrl_alpha" />
 
-
-                <TextView
+                <FrameLayout
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_marginRight="6dp"
-                    android:id="@+id/textViewCount"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
                     android:layout_alignRight="@+id/img_result"
-                    android:background="@drawable/bg_count"
-                    android:padding="25dp"
-                    style="@style/TextAppearance.AppCompat.Title"
-                    android:text="1"
                     android:layout_gravity="right"
-                    />
+                    android:paddingLeft="20dp"
+                    android:paddingBottom="20dp"
+                    android:background="@drawable/corder">
 
+                    <TextView
+                        android:id="@+id/textViewCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:textColor="@android:color/white"
+                        style="@style/TextAppearance.AppCompat.Title"
+                        android:text="1" />
+                </FrameLayout>
             </RelativeLayout>
 
             <RelativeLayout
