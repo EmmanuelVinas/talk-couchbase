@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding.widget.RxTextView;
+import com.jakewharton.rxbinding.widget.TextViewEditorActionEvent;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 import com.squareup.picasso.Picasso;
@@ -40,6 +43,7 @@ import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -53,6 +57,8 @@ public class AddItemFragment extends Fragment {
     private int itemCount = 1;
 
     private Bitmap itemImage;
+
+    private boolean searching;
 
     @Bind(R.id.layout_content)
     ViewGroup layoutContent;
@@ -104,15 +110,36 @@ public class AddItemFragment extends Fragment {
 
     private void initSearch() {
         // clear on empty
+
+        subscribe(RxTextView.textChanges(name));
+        subscribe(RxTextView.editorActions(name).filter(new Func1<Integer, Boolean>() {
+            @Override
+            public Boolean call(Integer integer) {
+                return EditorInfo.IME_ACTION_SEARCH == integer;
+            }
+        }).map(new Func1<Integer, CharSequence>() {
+            @Override
+            public CharSequence call(Integer integer) {
+                return name.getText();
+            }
+        }));
+
+    }
+
+    public void subscribe(Observable<CharSequence> observable){
         final int minLengthForRequest = 4;
         final GoogleImageService imageService = getImageService();
-        RxTextView.textChanges(name)
-                .filter(new Func1<CharSequence, Boolean>() {
-                    @Override
-                    public Boolean call(CharSequence charSequence) {
-                        return charSequence.length()>=minLengthForRequest;
-                    }
-                })
+        observable.filter(new Func1<CharSequence, Boolean>() {
+            @Override
+            public Boolean call(CharSequence charSequence) {
+                return !searching && charSequence.length()>=minLengthForRequest;
+            }
+        }).doOnNext(new Action1<CharSequence>() {
+            @Override
+            public void call(CharSequence charSequence) {
+                searching = true;
+            }
+        })
                 .debounce(200, TimeUnit.MILLISECONDS)
                 .throttleLast(200, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -138,14 +165,14 @@ public class AddItemFragment extends Fragment {
                 .map(new Func1<GoogleImageResponse, List<Result>>() {
                     @Override
                     public List<Result> call(GoogleImageResponse r) {
-                        return r.getResponseData().getResults();
+                        return r != null && r.getResponseData() != null ? r.getResponseData().getResults() : null;
                     }
                 }).filter(new Func1<List<Result>, Boolean>() {
-                    @Override
-                    public Boolean call(List<Result> res) {
-                        return res != null && !res.isEmpty();
-                    }
-                })
+            @Override
+            public Boolean call(List<Result> res) {
+                return res != null && !res.isEmpty();
+            }
+        })
                 .map(new Func1<List<Result>, String>() {
                     @Override
                     public String call(List<Result> urls) {
@@ -162,6 +189,7 @@ public class AddItemFragment extends Fragment {
                         progressBar.setVisibility(View.INVISIBLE);
                         layoutContent.setVisibility(View.VISIBLE);
                         Log.e(ShoppingListApplication.TAG, "error" + e);
+                        searching = false;
                     }
 
                     @Override
@@ -199,6 +227,7 @@ public class AddItemFragment extends Fragment {
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 Log.i(ShoppingListApplication.TAG, "Picasso image loaded");
                 setItemImage(bitmap);
+                searching = false;
             }
 
             @Override
@@ -206,6 +235,7 @@ public class AddItemFragment extends Fragment {
                 Log.i(ShoppingListApplication.TAG, "Picasso image failed");
                 itemImage = null;
                 imgResult.setImageDrawable(errorDrawable);
+                searching = false;
             }
 
             @Override

@@ -32,7 +32,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Search"
-                        android:lines="1" />
+                        android:lines="1"
+                        android:imeOptions="actionSearch"
+                        android:inputType="text"
+                        />
                 </android.support.design.widget.TextInputLayout>
 
                 <android.support.percent.PercentFrameLayout

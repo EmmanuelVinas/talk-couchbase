@@ -25,6 +25,8 @@
                 android:layout_height="wrap_content"
                 android:lines="1"
                 android:hint="Search"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
                 />
         </android.support.design.widget.TextInputLayout>
 
