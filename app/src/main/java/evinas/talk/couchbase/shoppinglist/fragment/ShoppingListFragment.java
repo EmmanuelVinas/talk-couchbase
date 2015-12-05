@@ -165,7 +165,6 @@ public class ShoppingListFragment extends Fragment{
             while (enumerator.hasNext()){
                 Document document = enumerator.next().getDocument();
                 document.delete();
-                document.purge();
             };
             ((ShoppingListApplication)getActivity().getApplication()).getDatabase().endTransaction(true);
         } catch (CouchbaseLiteException e) {

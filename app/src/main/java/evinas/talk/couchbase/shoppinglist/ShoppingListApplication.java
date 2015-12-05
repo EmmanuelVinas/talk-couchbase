@@ -18,7 +18,6 @@ public class ShoppingListApplication extends android.app.Application {
     public final static String TAG = "DemoCouchbase";
 
     private final static String DATABASE_NAME = "shoppinglist";
-    private final static String SYNC_URL = "http://127.0.0.1:4984/shoppingList";
 
     // Couchbase
     private Manager manager;
@@ -39,6 +38,12 @@ public class ShoppingListApplication extends android.app.Application {
         try {
 
             Manager.enableLogging(TAG, Log.VERBOSE);
+            Manager.enableLogging(TAG, Log.VERBOSE);
+            Manager.enableLogging(TAG, Log.VERBOSE);
+            Manager.enableLogging(TAG, Log.VERBOSE);
+            Manager.enableLogging(TAG, Log.VERBOSE);
+            Manager.enableLogging(TAG, Log.VERBOSE);
+            Manager.enableLogging(TAG, Log.VERBOSE);
 
             manager = new Manager(new AndroidContext(getApplicationContext()), Manager.DEFAULT_OPTIONS);
         } catch (IOException e) {
@@ -55,21 +60,21 @@ public class ShoppingListApplication extends android.app.Application {
     }
 
     private void initReplications(){
-        URL syncUrl;
         try {
-            syncUrl = new URL(SYNC_URL);
+            URL syncUrl = new URL(BuildConfig.SYNC_GATEWAY_URL);
+
+            pullReplication = database.createPullReplication(syncUrl);
+            pullReplication.setContinuous(true);
+            pullReplication.addChangeListener(getReplicationChangeListener("pull"));
+            pullReplication.start();
+
+            pushReplication = database.createPushReplication(syncUrl);
+            pushReplication.setContinuous(true);
+            pushReplication.addChangeListener(getReplicationChangeListener("pull"));
+            pushReplication.start();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-
-        pullReplication = database.createPullReplication(syncUrl);
-        pullReplication.setContinuous(true);
-        pullReplication.addChangeListener(getReplicationChangeListener("pull"));
-
-        pushReplication = database.createPushReplication(syncUrl);
-        pushReplication.setContinuous(true);
-        pushReplication.addChangeListener(getReplicationChangeListener("pull"));
-
     }
 
     private Replication.ChangeListener getReplicationChangeListener(final String type) {
